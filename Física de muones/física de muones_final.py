@@ -134,18 +134,11 @@ print(f"G_F / (hbar * c)^3 = ({G_F_over_hbar_c3} ± {G_F_over_hbar_c3_error}) Ge
 # Muones en el ambiente
 print(f"Muones en el ambiente = {B_values[-1][0]} ± {B_values[-1][1]}")
 
-# Calcular número total de muones
-A_final = A_values[-1][0]
-B_final = B_values[-1][0]
-N_mu_total = A_final + B_final
+#Muones y antimuones
 
-# Calcular incertidumbre en N_mu_total
-A_error = A_values[-1][1]
-B_error = B_values[-1][1]
-N_mu_total_error = np.sqrt(A_error**2 + B_error**2)
+tau_antimu = 2.043-6 # Vida media del antimuón en segundos
+tau_mu_3 = 2.211-6 # Vida media del muón en segundos
 
-# Calcular la fracción de antimuones
-fraction_antimuons = B_final / N_mu_total
-fraction_antimuons_error = fraction_antimuons * np.sqrt((B_error / B_final) ** 2 + (N_mu_total_error / N_mu_total) ** 2)
-print(f"Número total de muones y antimuones = {N_mu_total} ± {N_mu_total_error}")
-print(f"Fracción de antimuones = {fraction_antimuons:.4f} ± {fraction_antimuons_error:.4f}")
+ro = (tau_antimu*tau_mu_3)/(tau_antimu*(tau_mu_s+tau_mu_3))
+error_ro = ro * np.sqrt((tau_mu_error_s/tau_mu_s)**2 + (tau_mu_error_s/tau_mu_s)**2)
+print(f"Razón muones/antimuones = {ro} ± {error_ro}")
