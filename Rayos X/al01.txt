@@ -1,0 +1,10 @@
+Ángulo del crista	Tasa con 30kV
+theta/°	R(30kV)/Imp/s
+	
+6	477
+7	396
+8	307
+9	241
+10	215
+11	209
+12	184
