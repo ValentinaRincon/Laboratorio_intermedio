@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 d = 2.014e-10
 pk = 9.979
 
-pathTc = 'Rayos X\\Datos_actividad_3_rayos_X.csv'
+pathTc = 'Datos_actividad_3_rayos_X.csv'
 
 colores = np.array(['blue', 'red', 'green', 'purple', 'orange', 'brown', 'pink', 'gray', 'cyan', 'magenta'])
 marcadores = np.array(['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'X'])
@@ -54,26 +54,41 @@ IKb = np.array([])
 sigIkb = np.array([])
 potencialb = np.array([])
 
-for i in range(1,11):
+# En lugar de r'$\pm$', usa la cadena directamente:
+#print(f'valor de corriente {k+0.1*(i-1):.1f} ma, x0 = {param[1]:.5}' + '$\pm$' + f'{cov[1]:.5}')
+
+for i in range(1, 11):
     k = 11
     mask = (datos[0] <= 18.8) & (datos[0] >= 18.3)
-    lamb = 2*d*np.sin(np.radians(datos[0][mask]))
+    lamb = 2 * d * np.sin(np.radians(datos[0][mask]))
     j = datos[i][mask]
-    siglam = 2*d*np.cos(np.radians(datos[0][mask]))*np.radians(0.1)
-    sigmi = np.full(len(j),1)
-    
-    guess = [max(j),1.28e-10,(max(lamb)-min(lamb))/10]
-    
-    param, cov = curve_fit(lorentzian, lamb, j, p0=guess, sigma=sigmi, absolute_sigma=True)
-    
-    cov = np.sqrt(np.diagonal(cov))
-    
-    _x = np.linspace(np.min(lamb), np.max(lamb), 200)
-    _y = lorentzian(_x, *param)
-    
-    IKb = np.append(IKb, param[0])
-    sigIkb = np.append(sigIkb, cov[0])
-    potencialb = np.append(potencialb, k+2.5*(i-1))
+
+    if len(j) == 0 or len(lamb) == 0:
+        print(f"Advertencia: No se encontraron datos para el índice {i}. Saltando iteración.")
+        continue  # Salta esta iteración si no hay datos válidos
+
+    siglam = 2 * d * np.cos(np.radians(datos[0][mask])) * np.radians(0.1)
+    sigmi = np.full(len(j), 1)
+
+    # Verifica que haya valores antes de intentar obtener max() y min()
+    if len(j) > 0 and len(lamb) > 0:
+        guess = [max(j), 1.28e-10, (max(lamb) - min(lamb)) / 10]
+
+        param, cov = curve_fit(lorentzian, lamb, j, p0=guess, sigma=sigmi, absolute_sigma=True)
+        cov = np.sqrt(np.diagonal(cov))
+
+        _x = np.linspace(np.min(lamb), np.max(lamb), 200)
+        _y = lorentzian(_x, *param)
+
+        IKb = np.append(IKb, param[0])
+        sigIkb = np.append(sigIkb, cov[0])
+        potencialb = np.append(potencialb, k + 2.5 * (i - 1))
+
+        plt.errorbar(lamb, j, yerr=sigmi, xerr=siglam, fmt='o', color=colores[i - 1], label=f'{k + 2.5 * (i - 1)} V')
+        plt.plot(_x, _y, color=colores[i - 1])
+    else:
+        print(f"Advertencia: No se pueden ajustar los datos para el índice {i} debido a falta de datos válidos.")
+
     
     plt.errorbar(lamb,j,yerr=sigmi, xerr=siglam, fmt='o', color=colores[i-1], label=f'{k+2.5*(i-1)} V')
     plt.plot(_x, _y, color=colores[i-1])
